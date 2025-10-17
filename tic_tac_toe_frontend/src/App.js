@@ -1,47 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import './index.css';
 import './App.css';
+import Header from './components/Header';
+import Scoreboard from './components/Scoreboard';
+import Board from './components/Board';
+import Controls from './components/Controls';
+import { calculateWinner } from './utils/game';
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
+  /**
+   * This is the main Tic Tac Toe application component.
+   * It manages game state, player turns, scoreboard, and controls.
+   * Styled using Ocean Professional theme.
+   */
+  const [squares, setSquares] = useState(Array(9).fill(null));
+  const [xIsNext, setXIsNext] = useState(true);
+  const [scores, setScores] = useState({ X: 0, O: 0, draws: 0 });
+  const [winnerInfo, setWinnerInfo] = useState({ winner: null, line: [] });
 
-  // Effect to apply theme to document element
+  // Apply base theme on mount
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    document.title = 'Tic Tac Toe — Ocean Pro';
+    const root = document.documentElement;
+    root.style.setProperty('--ocean-primary', '#2563EB');
+    root.style.setProperty('--ocean-secondary', '#F59E0B');
+    root.style.setProperty('--ocean-success', '#F59E0B');
+    root.style.setProperty('--ocean-error', '#EF4444');
+    root.style.setProperty('--ocean-bg', '#f9fafb');
+    root.style.setProperty('--ocean-surface', '#ffffff');
+    root.style.setProperty('--ocean-text', '#111827');
+  }, []);
+
+  // Compute winner or draw on each move
+  useEffect(() => {
+    const { winner, line } = calculateWinner(squares);
+    if (winner && !winnerInfo.winner) {
+      setWinnerInfo({ winner, line });
+      setScores(prev => ({ ...prev, [winner]: prev[winner] + 1 }));
+    } else if (!winner && !squares.includes(null) && !winnerInfo.winner) {
+      setWinnerInfo({ winner: null, line: [], draw: true });
+      setScores(prev => ({ ...prev, draws: prev.draws + 1 }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [squares]);
+
+  const currentPlayer = xIsNext ? 'X' : 'O';
+  const isGameOver = Boolean(winnerInfo.winner) || (winnerInfo.draw && !winnerInfo.winner);
 
   // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  const handleSquareClick = (index) => {
+    /** Handle square click if game not over and square empty. */
+    if (squares[index] || isGameOver) return;
+    const next = squares.slice();
+    next[index] = xIsNext ? 'X' : 'O';
+    setSquares(next);
+    setXIsNext(!xIsNext);
+  };
+
+  // PUBLIC_INTERFACE
+  const resetBoard = () => {
+    /** Reset only the board and winner info, preserve scores. */
+    setSquares(Array(9).fill(null));
+    setXIsNext(true);
+    setWinnerInfo({ winner: null, line: [], draw: false });
+  };
+
+  // PUBLIC_INTERFACE
+  const newGame = () => {
+    /** Reset board and scores to start a fresh session. */
+    resetBoard();
+    setScores({ X: 0, O: 0, draws: 0 });
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-root">
+      <div className="app-container">
+        <Header />
+        <Scoreboard
+          scores={scores}
+          currentPlayer={isGameOver ? null : currentPlayer}
+        />
+        <Board
+          squares={squares}
+          onSquareClick={handleSquareClick}
+          winningLine={winnerInfo.line}
+          disabled={isGameOver}
+        />
+        <Controls
+          onReset={resetBoard}
+          onNewGame={newGame}
+          status={{
+            currentPlayer: isGameOver ? null : currentPlayer,
+            winner: winnerInfo.winner || null,
+            draw: Boolean(winnerInfo.draw && !winnerInfo.winner),
+          }}
+        />
+      </div>
     </div>
   );
 }
