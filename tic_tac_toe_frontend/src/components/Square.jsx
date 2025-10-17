@@ -1,4 +1,5 @@
 import React from 'react';
+import { PlayerIcon } from './ChessIcon';
 
 /**
  * Single square component.
@@ -17,7 +18,12 @@ export default function Square({ value, onClick, disabled, isWinning }) {
     isWinning ? 'win' : ''
   ].join(' ').trim();
 
-  const label = value ? `Square with ${value}` : 'Empty square';
+  const label = value
+    ? `Square with ${value === 'X' ? 'Knight (X)' : 'Queen (O)'}`
+    : 'Empty square';
+
+  const iconColor =
+    value === 'X' ? 'var(--ocean-primary)' : value === 'O' ? 'var(--ocean-secondary)' : 'inherit';
 
   return (
     <button
@@ -27,9 +33,11 @@ export default function Square({ value, onClick, disabled, isWinning }) {
       disabled={disabled}
       aria-label={label}
     >
-      <span style={{ color: value === 'X' ? 'var(--ocean-primary)' : 'var(--ocean-secondary)' }}>
-        {value}
-      </span>
+      {value ? (
+        <span style={{ color: iconColor, display: 'grid', placeItems: 'center' }}>
+          <PlayerIcon player={value} />
+        </span>
+      ) : null}
     </button>
   );
 }

@@ -91,6 +91,10 @@ body {
   font-size: 13px;
   font-weight: 600;
 }
+.score-card .label .square-icon {
+  width: 1.1em;
+  height: 1.1em;
+}
 .score-card .value {
   margin-top: 6px;
   font-size: 22px;
@@ -120,6 +124,12 @@ body {
   cursor: pointer;
   transition: transform 140ms ease, box-shadow 140ms ease, background 160ms ease;
   user-select: none;
+}
+.square .square-icon {
+  /* Keep the icon crisp and centered; size relative to the square text size */
+  width: 0.9em;
+  height: 0.9em;
+  display: block;
 }
 .square:hover {
   transform: translateY(-2px);

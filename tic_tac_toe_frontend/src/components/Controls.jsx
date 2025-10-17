@@ -1,4 +1,5 @@
 import React from 'react';
+import { PlayerIcon } from './ChessIcon';
 
 /**
  * Controls render action buttons and game status.
@@ -11,10 +12,6 @@ import React from 'react';
 // PUBLIC_INTERFACE
 export default function Controls({ onReset, onNewGame, status }) {
   const { currentPlayer, winner, draw } = status || {};
-  let statusText = '';
-  if (winner) statusText = `Winner: ${winner}`;
-  else if (draw) statusText = 'Draw';
-  else if (currentPlayer) statusText = `Turn: ${currentPlayer}`;
 
   return (
     <section>
@@ -27,7 +24,40 @@ export default function Controls({ onReset, onNewGame, status }) {
         </button>
       </div>
       <div className="status" role="status" aria-live="polite">
-        {statusText}
+        {winner && (
+          <span>
+            Winner:{' '}
+            <strong
+              style={{
+                display: 'inline-grid',
+                placeItems: 'center',
+                color: winner === 'X' ? 'var(--ocean-primary)' : 'var(--ocean-secondary)',
+              }}
+              aria-label={winner === 'X' ? 'Knight (X)' : 'Queen (O)'}
+              title={winner === 'X' ? 'Knight (X)' : 'Queen (O)'}
+            >
+              <PlayerIcon player={winner} />
+            </strong>
+          </span>
+        )}
+        {!winner && draw && <span>Draw</span>}
+        {!winner && !draw && currentPlayer && (
+          <span>
+            Turn:{' '}
+            <strong
+              style={{
+                display: 'inline-grid',
+                placeItems: 'center',
+                color:
+                  currentPlayer === 'X' ? 'var(--ocean-primary)' : 'var(--ocean-secondary)',
+              }}
+              aria-label={currentPlayer === 'X' ? 'Knight (X)' : 'Queen (O)'}
+              title={currentPlayer === 'X' ? 'Knight (X)' : 'Queen (O)'}
+            >
+              <PlayerIcon player={currentPlayer} />
+            </strong>
+          </span>
+        )}
       </div>
     </section>
   );
